@@ -1,0 +1,5 @@
+#!/bin/bash
+
+/usr/local/bin/iptables-nakivo.sh
+
+exit 0
