@@ -3,6 +3,129 @@
 ##########
 # Referencia https://helpcenter.nakivo.com/User-Guide/Content/Deployment/System-Requirements/Deployment-Requirements.htm
 
+#Função para criar o arquivo rc.local
+create_rc_local() {
+    local rc_local="/etc/rc.local"
+    local script_line='#!/bin/bash\n\n# script para inicializar regras iptables para o Nakivo\n/usr/local/bin/iptables-nakivo.sh start\n\nexit 0'
+
+    if [[ -f "$rc_local" ]]; then
+        echo "O arquivo $rc_local já existe. Adicionando o script necessário..."
+
+        # Verifica se o 'exit 0' está no final do arquivo e o remove temporariamente
+        sudo sed -i '/^exit 0$/d' "$rc_local"
+
+        # Adiciona o script e o 'exit 0' novamente
+        echo -e "$script_line" | sudo tee -a "$rc_local" > /dev/null
+    else
+        echo "Criando o arquivo $rc_local com o script necessário..."
+
+        # Cria o arquivo com o script
+        echo -e "$script_line" | sudo tee "$rc_local" > /dev/null
+
+        # Altera as permissões para torná-lo executável
+        sudo chmod +x "$rc_local"
+    fi
+
+    echo "Operação concluída."
+    echo "  "
+}
+
+#Função para criar o arquivo rc-local.service
+create_rc_local_service() {
+    local service_file="/etc/systemd/system/rc-local.service"
+
+    # Verifica se o arquivo já existe
+    if [[ -f "$service_file" ]]; then
+        echo "O serviço rc-local.service já existe."
+        echo "Subscrevendo o arquivo já existente..."
+
+        # Conteúdo do arquivo de serviço rc-local.service
+        local service_content="[Unit]
+Description=/etc/rc.local Compatibility
+ConditionPathExists=/etc/rc.local
+
+[Service]
+Type=forking
+ExecStart=/etc/rc.local start
+TimeoutSec=0
+StandardOutput=tty
+RemainAfterExit=yes
+SysVStartPriority=99
+
+[Install]
+WantedBy=multi-user.target"
+
+        # Cria o arquivo de serviço
+        echo "$service_content" | sudo tee "$service_file" > /dev/null
+
+        # Altera as permissões para torná-lo executável
+        sudo chmod +x "$service_file"
+
+        echo "Serviço rc-local.service subscrevido com sucesso."
+        echo "  "
+    else
+        echo "Criando o serviço systemd rc-local.service..."
+        echo "  "
+
+        # Conteúdo do arquivo de serviço rc-local.service
+        local service_content="[Unit]
+Description=/etc/rc.local Compatibility
+ConditionPathExists=/etc/rc.local
+
+[Service]
+Type=forking
+ExecStart=/etc/rc.local start
+TimeoutSec=0
+StandardOutput=tty
+RemainAfterExit=yes
+SysVStartPriority=99
+
+[Install]
+WantedBy=multi-user.target"
+
+        # Cria o arquivo de serviço
+        echo "$service_content" | sudo tee "$service_file" > /dev/null
+
+        # Altera as permissões para torná-lo executável
+        sudo chmod +x "$service_file"
+
+        echo "Serviço rc-local.service criado com sucesso."
+        echo "  "
+    fi
+}
+
+#Move o script para o para o diretório /usr/local/bin
+install_script() {
+    local script_name="iptables-nakivo.sh"
+    local script_path="/usr/local/bin/$script_name"
+
+    # Verifica se o script já existe no destino
+    if [[ -f "$script_path" ]]; then
+        echo "O script $script_name já existe em $script_path."
+        echo "Subscrevendo o script em $script_path..."
+
+        # Copia o script para /usr/local/bin
+        sudo cp "$0" "$script_path"
+
+        # Altera as permissões para torná-lo executável
+        sudo chmod +x "$script_path"
+
+        echo "Script instalado e permissão chmod +x aplicada."
+        echo "  "
+    else
+        echo "Instalando o script em $script_path..."
+
+        # Copia o script para /usr/local/bin
+        sudo cp "$0" "$script_path"
+
+        # Altera as permissões para torná-lo executável
+        sudo chmod +x "$script_path"
+
+        echo "Script instalado e permissão chmod +x aplicada."
+        echo "  "
+    fi
+}
+
 ### VARIAVEIS
 # Array de IPs de origem permitidos
 ips_origem_mng=("10.1.254.18")  # MGM IPs Acesso porta Web e SSH
@@ -19,6 +142,7 @@ show_help() {
     echo "  uninstall: Parar remover comente a linah no arquivo /etc/rc.local"
     echo "  help: Exibir mensagens de ajuda"
     echo "  "
+    echo "  Edite as portas as quais deseja abrir para os IPs de origem"
     echo "  Adicione os IPs de origem que devem ter acesso nas variaveis, nesse formato:"
     echo "  ips_origem=("192.168.21.30" "10.21.0.80" "172.16.2.2")"
     echo "  range_origem_mng=("10.227.201.1-10.227.201.254")"
@@ -86,8 +210,10 @@ list(){
 
 case "$1" in
     start)
+        create_rc_local
+        create_rc_local_service
+        install_script
         start
-        echo ""
         list
         ;;
     stop)
