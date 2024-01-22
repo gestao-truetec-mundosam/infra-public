@@ -3,19 +3,39 @@
 ##########
 # Referencia https://helpcenter.nakivo.com/User-Guide/Content/Deployment/System-Requirements/Deployment-Requirements.htm
 
+### VARIAVEIS
+# Array de IPs de origem permitidos
+ips_origem_mng=("10.1.254.18")  # MGM IPs Acesso porta Web e SSH
+range_origem_mng=("10.0.201.1-10.21.201.254")  # MGM Range de Acesso porta Web e SSH
+ips_origem=("10.1.254.80" "10.1.254.81" "10.1.254.83")      # IPs Trafego Backup VMs Nakivo
+range_origem=("192.168.227.20-192.168.227.30")      # Range para Trafego Backup VMs Nakivo
+
+### FUNCOES
+show_help() {
+    echo "Use: $0 [start|stop|help]"
+    echo "  start: Iniciar Regras Iptables"
+    echo "  stop: Parar a execucao Regras Iptables "
+    echo "  list: Listar as regras "
+    echo "  install: Instala servico, criar arquivo /etc/rc.local"
+    echo "  uninstall: Parar remover comente a linah no arquivo /etc/rc.local"
+    echo "  help: Exibir mensagens de ajuda"
+    echo "  "
+    echo "  Edite as portas as quais deseja abrir para os IPs de origem"
+    echo "  Adicione os IPs de origem que devem ter acesso nas variaveis, nesse formato:"
+    echo "  ips_origem=("192.168.21.30" "10.21.0.80" "172.16.2.2")"
+    echo "  range_origem_mng=("10.227.201.1-10.227.201.254")"
+    echo "  ips_origem=("10.1.254.80" "10.1.254.81" "10.1.254.83")"
+    echo "  range_origem=("192.168.227.20-192.168.227.30")"
+}
+
 #Função para criar o arquivo rc.local
 create_rc_local() {
     local rc_local="/etc/rc.local"
     local script_line='#!/bin/bash\n\n# script para inicializar regras iptables para o Nakivo\n/usr/local/bin/iptables-nakivo.sh start\n\nexit 0'
 
     if [[ -f "$rc_local" ]]; then
-        echo "O arquivo $rc_local já existe. Adicionando o script necessário..."
+        echo "O arquivo $rc_local já existe, acrescente manualmente o script $0 start no arquivo /etc/rc.local"
 
-        # Verifica se o 'exit 0' está no final do arquivo e o remove temporariamente
-        sudo sed -i '/^exit 0$/d' "$rc_local"
-
-        # Adiciona o script e o 'exit 0' novamente
-        echo -e "$script_line" | sudo tee -a "$rc_local" > /dev/null
     else
         echo "Criando o arquivo $rc_local com o script necessário..."
 
@@ -126,30 +146,6 @@ install_script() {
     fi
 }
 
-### VARIAVEIS
-# Array de IPs de origem permitidos
-ips_origem_mng=("10.1.254.18")  # MGM IPs Acesso porta Web e SSH
-range_origem_mng=("10.0.201.1-10.21.201.254")  # MGM Range de Acesso porta Web e SSH
-ips_origem=("10.1.254.80" "10.1.254.81" "10.1.254.83")      # IPs Trafego Backup
-range_origem=("192.168.227.20-192.168.227.30")      # Range para Trafego Backup
-
-### FUNCOES
-show_help() {
-    echo "Use: $0 [start|stop|help]"
-    echo "  start: Iniciar Regras Iptables"
-    echo "  stop: Parar a execucao Regras Iptables "
-    echo "  list: Listar as regras "
-    echo "  uninstall: Parar remover comente a linah no arquivo /etc/rc.local"
-    echo "  help: Exibir mensagens de ajuda"
-    echo "  "
-    echo "  Edite as portas as quais deseja abrir para os IPs de origem"
-    echo "  Adicione os IPs de origem que devem ter acesso nas variaveis, nesse formato:"
-    echo "  ips_origem=("192.168.21.30" "10.21.0.80" "172.16.2.2")"
-    echo "  range_origem_mng=("10.227.201.1-10.227.201.254")"
-    echo "  ips_origem=("10.1.254.80" "10.1.254.81" "10.1.254.83")"
-    echo "  range_origem=("192.168.227.20-192.168.227.30")"
-}
-
 start(){
 
     echo "Start Regras Iptables.."
@@ -210,9 +206,6 @@ list(){
 
 case "$1" in
     start)
-        create_rc_local
-        create_rc_local_service
-        install_script
         start
         list
         ;;
@@ -225,6 +218,12 @@ case "$1" in
         ;;
     help)
         show_help
+        ;;
+     install)
+        echo "Instala servico, criar arquivo etcrc.local"
+        create_rc_local
+        create_rc_local_service
+        install_script
         ;;
     uninstall)
         echo "Parar remover comente a linha que executa $0 no arquivo /etc/rc.local"
