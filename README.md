@@ -21,7 +21,7 @@ Instalação
 
     bash
 
-git clone [URL do repositório]
+git clone https://github.com/gestao-truetec-mundosam/infra-public.git
 
 Navegue até o diretório do script:
 
