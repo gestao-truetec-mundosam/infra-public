@@ -6,8 +6,8 @@ Descrição
 O script automatiza o processo de configuração do iptables para o gerenciamento e o tráfego de backup do Nakivo. Ele cria regras para permitir o tráfego em determinadas portas e de endereços IP específicos, melhorando a segurança e o controle do acesso ao sistema.
 Recursos
 
-    Criação e configuração automática do arquivo /etc/rc.local.
-    Configuração do serviço rc-local.service para sistemas com systemd.
+    Criação e configuração automática do arquivo /etc/rc.local .
+    Configuração do serviço rc-local.service para sistemas com systemd .
     Instalação e configuração de regras do iptables para gerenciamento e tráfego de backup.
 
 Pré-requisitos
@@ -46,6 +46,5 @@ bash
 Customização
 
 Você pode editar as variáveis ips_origem, range_origem, ips_origem_mng e range_origem_mng no script para especificar os endereços IP e faixas de IPs que devem ser permitidos.
-Contribuições
 
 Se você tiver alguma dúvida ou precisar de suporte, entre em contato com TrueTec em infra@truetec.com.br .
