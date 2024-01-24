@@ -189,8 +189,8 @@ start(){
     done
 
     # Negar todo o tráfego por padrão
-    #iptables -A INPUT -p tcp --dport 2221 -i $interface -j DROP
-    #iptables -A INPUT -p tcp --dport 4443 -i $interface -j DROP
+    iptables -A INPUT -p tcp --dport 2221 -i $interface -j DROP
+    iptables -A INPUT -p tcp --dport 4443 -i $interface -j DROP
     iptables -A INPUT -p tcp --dport 9446 -i $interface -j DROP
     iptables -A INPUT -p tcp -m multiport --dports 9448:10000 -i $interface -j DROP
     #iptables -A INPUT -p tcp --dport 902 -i $interface -j DROP
