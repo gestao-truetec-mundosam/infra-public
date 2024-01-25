@@ -11,22 +11,6 @@ ips_origem=("10.1.254.80" "10.1.254.81" "10.1.254.83")      # IPs Trafego Backup
 range_origem=("192.168.227.20-192.168.227.30")      # Range para Trafego Backup VMs Nakivo
 
 ### FUNCOES
-show_help() {
-    echo "Use: $0 [start|stop|help]"
-    echo "  start: Iniciar Regras Iptables"
-    echo "  stop: Parar a execucao Regras Iptables "
-    echo "  list: Listar as regras "
-    echo "  install: Instala servico, criar arquivo /etc/rc.local"
-    echo "  uninstall: Parar remover comente a linah no arquivo /etc/rc.local"
-    echo "  help: Exibir mensagens de ajuda"
-    echo "  "
-    echo "  Edite as portas as quais deseja abrir para os IPs de origem"
-    echo "  Adicione os IPs de origem que devem ter acesso nas variaveis, nesse formato:"
-    echo "  ips_origem_mng=("192.168.21.30" "10.21.0.80" "172.16.2.2")"
-    echo "  range_origem_mng=("10.227.201.1-10.227.201.254")"
-    echo "  ips_origem=("10.1.254.80" "10.1.254.81" "10.1.254.83")"
-    echo "  range_origem=("192.168.227.20-192.168.227.30")"
-}
 
 #Função para criar o arquivo rc.local
 create_rc_local() {
@@ -112,6 +96,24 @@ WantedBy=multi-user.target"
         echo "Serviço rc-local.service criado com sucesso."
         echo "  "
     fi
+}
+
+# Funcao help nao precisa editar valor das variaveis aqui!
+show_help() {
+    echo "Use: $0 [start|stop|help]"
+    echo "  start: Iniciar Regras Iptables"
+    echo "  stop: Parar a execucao Regras Iptables "
+    echo "  list: Listar as regras "
+    echo "  install: Instala servico, criar arquivo /etc/rc.local"
+    echo "  uninstall: Parar remover comente a linah no arquivo /etc/rc.local"
+    echo "  help: Exibir mensagens de ajuda"
+    echo "  "
+    echo "  Edite as portas as quais deseja abrir para os IPs de origem"
+    echo "  Adicione os IPs de origem que devem ter acesso nas variaveis, nesse formato:"
+    echo "  ips_origem_mng=("192.168.21.30" "10.21.0.80" "172.16.2.2")"
+    echo "  range_origem_mng=("10.227.201.1-10.227.201.254")"
+    echo "  ips_origem=("10.1.254.80" "10.1.254.81" "10.1.254.83")"
+    echo "  range_origem=("192.168.227.20-192.168.227.30")"
 }
 
 #Move o script para o para o diretório /usr/local/bin
