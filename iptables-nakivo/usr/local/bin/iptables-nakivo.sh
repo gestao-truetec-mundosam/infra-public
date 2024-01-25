@@ -22,7 +22,7 @@ show_help() {
     echo "  "
     echo "  Edite as portas as quais deseja abrir para os IPs de origem"
     echo "  Adicione os IPs de origem que devem ter acesso nas variaveis, nesse formato:"
-    echo "  ips_origem=("192.168.21.30" "10.21.0.80" "172.16.2.2")"
+    echo "  ips_origem_mng=("192.168.21.30" "10.21.0.80" "172.16.2.2")"
     echo "  range_origem_mng=("10.227.201.1-10.227.201.254")"
     echo "  ips_origem=("10.1.254.80" "10.1.254.81" "10.1.254.83")"
     echo "  range_origem=("192.168.227.20-192.168.227.30")"
@@ -160,12 +160,12 @@ start(){
     # obter nome da interface padrao
     interface=$(ip route | awk '/default/ {print $5}')
 
-    # Permitir tráfego para as portas de Gerencia Web e SSH, para os IPs de origem especificados variavel ips_origem_mng
-    for ip in "${ips_origem_mng[@]}"; do
+    # Permitir tráfego para as portas de Gerencia Web e SSH, para os IPs de origem especificados variavel ips_origem_
+    for ip in "${ips_origem_[@]}"; do
         iptables -A INPUT -p tcp --dport 2221 -i $interface -s "$ip" -j ACCEPT
         iptables -A INPUT -p tcp --dport 4443 -i $interface -s "$ip" -j ACCEPT
     done
-    for range in "${range_origem_mng[@]}"; do
+    for range in "${range_origem_[@]}"; do
         iptables -A INPUT -p tcp --dport 2221 -i $interface -m iprange --src-range "$range" -j ACCEPT
         iptables -A INPUT -p tcp --dport 4443 -i $interface -m iprange --src-range "$range" -j ACCEPT
     done
